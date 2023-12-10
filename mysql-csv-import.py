@@ -18,23 +18,25 @@ ArgParams = namedtuple('ArgParams',
 
 
 def write_date_to_db(arg_params: ArgParams, csv_data: List[Dict]):
-    cnx = db_connector.connect(user=arg_params.user,
-                               password=arg_params.password,
-                               host=arg_params.host,
-                               database=arg_params.database)
+    try:
+        cnx = db_connector.connect(user=arg_params.user,
+                                   password=arg_params.password,
+                                   host=arg_params.host,
+                                   database=arg_params.database)
 
-    cursor = cnx.cursor()
-
-    for row in csv_data:
-        add_query = (f"INSERT INTO {arg_params.table}({','.join(row.keys())}) "
-                     f"VALUES({','.join(['%s']*len(row.values()))})")
+        add_query = (f"INSERT INTO {arg_params.table}({','.join(csv_data[0].keys())}) "
+                     f"VALUES({','.join(['%s'] * len(csv_data[0].keys()))})")
         logging.debug("query: %s", pformat(add_query))
 
-        cursor.execute(add_query, list(row.values()))
+        with cnx.cursor() as cursor:
+            cursor.executemany(add_query, [list(row.values()) for row in csv_data])
 
-    cnx.commit()
-    cursor.close()
-    cnx.close()
+        cnx.commit()
+        cnx.close()
+
+    except db_connector.Error as err:
+        logging.error("database operation error: %s", str(err))
+        raise
 
 
 def read_csv_file(file: str) -> List[Dict]:
@@ -47,11 +49,11 @@ def read_csv_file(file: str) -> List[Dict]:
                 ret.append(row)
 
     except FileNotFoundError as err:
-        logging.info("File not found: %s", file)
+        logging.error("File not found: %s", file)
         raise
 
     except csv.Error as err:
-        logging.info("Reading error for file: %s", file)
+        logging.error("Reading error for file: %s", file)
         raise
 
     return ret
