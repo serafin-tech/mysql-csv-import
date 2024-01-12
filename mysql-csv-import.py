@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# pylint: disable=missing-module-docstring,missing-function-docstring,invalid-name
 
 import argparse
 import csv
@@ -8,8 +9,7 @@ from pathlib import PurePath
 from pprint import pformat
 from typing import Dict, List
 
-import mysql.connector as db_connector
-# import mariadb as db_connector
+import mysql.connector
 from decouple import config
 
 
@@ -19,7 +19,7 @@ ArgParams = namedtuple('ArgParams',
 
 def write_date_to_db(arg_params: ArgParams, csv_data: List[Dict]):
     try:
-        cnx = db_connector.connect(user=arg_params.user,
+        cnx = mysql.connector.connect(user=arg_params.user,
                                    password=arg_params.password,
                                    host=arg_params.host,
                                    database=arg_params.database)
@@ -29,12 +29,15 @@ def write_date_to_db(arg_params: ArgParams, csv_data: List[Dict]):
         logging.debug("query: %s", pformat(add_query))
 
         with cnx.cursor() as cursor:
-            cursor.executemany(add_query, [list(row.values()) for row in csv_data])
+            try:
+                cursor.executemany(add_query, [list(row.values()) for row in csv_data])
+            except mysql.connector.Error as exception:
+                logging.debug("error: %s", str(exception))
 
         cnx.commit()
         cnx.close()
 
-    except db_connector.Error as err:
+    except mysql.connector.Error as err:
         logging.error("database operation error: %s", str(err))
         raise
 
@@ -44,26 +47,22 @@ def read_csv_file(file: str) -> List[Dict]:
         with open(file, encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
 
-            ret = list()
-            for row in reader:
-                ret.append(row)
+            return list(reader)
 
-    except FileNotFoundError as err:
-        logging.error("File not found: %s", file)
+    except FileNotFoundError as exception:
+        logging.error("File not found: %s, details: %s", file, str(exception))
         raise
 
-    except csv.Error as err:
-        logging.error("Reading error for file: %s", file)
+    except csv.Error as exception:
+        logging.error("Reading error for file: %s, details: %s", file, str(exception))
         raise
-
-    return ret
 
 
 def args_parser():
-    DB_USER = config('DB_USER', default=None)
-    DB_PASS = config('DB_PASS', default=None)
-    DB_HOST = config('DB_HOST', default='127.0.0.1')
-    DB_PORT = config('DB_PORT', default=3306, cast=int)
+    db_user = config('DB_USER', default=None)
+    db_pass = config('DB_PASS', default=None)
+    db_host = config('DB_HOST', default='127.0.0.1')
+    db_port = config('DB_PORT', default=3306, cast=int)
 
     parser = argparse.ArgumentParser(description='Importing CSV data into MySQL database')
 
@@ -85,19 +84,19 @@ def args_parser():
 
     parser.add_argument('-H', '--host',
                         help='database host, default 127.0.0.1, read from .env from DB_HOST',
-                        default=DB_HOST)
+                        default=db_host)
 
     parser.add_argument('-P', '--port',
                         help='database port, default 3306, read from .env from DB_PORT',
-                        default=DB_PORT)
+                        default=db_port)
 
     parser.add_argument('-u', '--user',
                         help='username for database connection, read from .env from DB_USER',
-                        default=DB_USER)
+                        default=db_user)
 
     parser.add_argument('-p', '--password',
                         help='password for database connection, read from .env from DB_PASS',
-                        default=DB_PASS)
+                        default=db_pass)
 
     params = parser.parse_args()
 
