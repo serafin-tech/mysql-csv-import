@@ -9,8 +9,8 @@ from pathlib import PurePath
 from pprint import pformat
 from typing import Dict, List
 
-import mysql.connector
-from decouple import config
+import mysql.connector  # pylint: disable=import-error
+from decouple import config  # pylint: disable=import-error
 
 
 ArgParams = namedtuple('ArgParams',
