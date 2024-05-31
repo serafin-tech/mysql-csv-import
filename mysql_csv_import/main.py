@@ -20,9 +20,9 @@ ArgParams = namedtuple('ArgParams',
 def write_date_to_db(arg_params: ArgParams, csv_data: List[Dict]):
     try:
         cnx = mysql.connector.connect(user=arg_params.user,
-                                   password=arg_params.password,
-                                   host=arg_params.host,
-                                   database=arg_params.database)
+                                      password=arg_params.password,
+                                      host=arg_params.host,
+                                      database=arg_params.database)
 
         add_query = (f"INSERT INTO {arg_params.table}({','.join(csv_data[0].keys())}) "
                      f"VALUES({','.join(['%s'] * len(csv_data[0].keys()))})")
@@ -32,7 +32,9 @@ def write_date_to_db(arg_params: ArgParams, csv_data: List[Dict]):
             try:
                 cursor.executemany(add_query, [list(row.values()) for row in csv_data])
             except mysql.connector.Error as exception:
-                logging.debug("error: %s", str(exception))
+                logging.info("error: %s", str(exception))
+            else:
+                logging.info("data loaded successfully.")
 
         cnx.commit()
         cnx.close()

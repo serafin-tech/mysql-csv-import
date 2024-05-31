@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=64.0",
+            "setuptools-scm>=8.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+version_file = "mysql_csv_import/_version.py"
+
+[project]
+name = "mysql_csv_import"
+dynamic = ["version"]
+authors = [
+  { name="Jaroslaw Wencel", email="jaroslaw.wencel@gmail.com" },
+]
+description = "Cli tool to import data to MySQL db"
+license = {text = "MIT License"}
+readme = {file = "README.md", content-type = "text/markdown"}
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "mysql-connector-python~=8.2.0",
+    "python-decouple~=3.8",
+]
+keywords = ['mysql', 'csv']
+
+[project.urls]
+Homepage = "https://serafin.tech/mysql-csv-import"
+Issues = "https://serafin.tech/mysql-csv-import/issues"
+
+[project.scripts]
+mysql-csv-import = "mysql_csv_import:main.main"
