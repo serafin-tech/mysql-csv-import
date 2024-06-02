@@ -60,7 +60,7 @@ def read_csv_file(file: str) -> List[Dict]:
         raise
 
 
-def args_parser():
+def args_parser(args_list: list[str] | None):
     db_user = config('DB_USER', default=None)
     db_pass = config('DB_PASS', default=None)
     db_host = config('DB_HOST', default='127.0.0.1')
@@ -90,7 +90,8 @@ def args_parser():
 
     parser.add_argument('-P', '--port',
                         help='database port, default 3306, read from .env from DB_PORT',
-                        default=db_port)
+                        default=db_port,
+                        type = int)
 
     parser.add_argument('-u', '--user',
                         help='username for database connection, read from .env from DB_USER',
@@ -100,7 +101,7 @@ def args_parser():
                         help='password for database connection, read from .env from DB_PASS',
                         default=db_pass)
 
-    params = parser.parse_args()
+    params = parser.parse_args(args_list)
 
     return ArgParams(verbose=params.verbose,
                      file=params.file,
