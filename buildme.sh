@@ -21,16 +21,16 @@ cd "$(dirname $0)"
 
 if [[ ! -d venv ]]
 then
-  python3.11 -m venv venv
+  python3 -m venv venv
 fi
 
 rm -rf dist/ *.egg-info/ junit/ htmlcov/
 
 source venv/bin/activate
 
-python3.11 -m pip install -U pip
-python3.11 -m pip install -r requirements.txt
-python3.11 -m pip install -r requirements-dev.txt
+python3 -m pip install -U pip
+python3 -m pip install -r requirements.txt
+python3 -m pip install -r requirements-dev.txt
 
 python3 -m setuptools_scm
 
