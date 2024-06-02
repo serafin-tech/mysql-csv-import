@@ -15,7 +15,7 @@ authors = [
 description = "Cli tool to import data to MySQL db"
 license = {text = "MIT License"}
 readme = {file = "README.md", content-type = "text/markdown"}
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
