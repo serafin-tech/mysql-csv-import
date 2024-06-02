@@ -1,0 +1,4 @@
+build~=1.2.1
+pylint~=3.2.2
+pytest~=8.2.1
+setuptools-scm~=8.1.0
