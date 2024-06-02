@@ -1,6 +1,7 @@
 #!/bin/bash
 
-set -e
+set -eux
+set -o pipefail
 
 NOCOLOR='\033[0m'
 RED='\033[0;31m'
@@ -14,7 +15,9 @@ function echo_green {
   echo -e "${GREEN}$1${NOCOLOR}"
 }
 
-trap finish SIGINT SIGABRT SIGKILL SIGTERM
+trap finish SIGINT SIGABRT SIGTERM
+
+cd "$(dirname $0)"
 
 if [[ ! -d venv ]]
 then
