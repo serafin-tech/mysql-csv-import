@@ -60,7 +60,7 @@ def read_csv_file(file: str) -> List[Dict]:
         raise
 
 
-def args_parser(args_list: list[str] | None):
+def args_parser(args_list: list[str]):
     db_user = config('DB_USER', default=None)
     db_pass = config('DB_PASS', default=None)
     db_host = config('DB_HOST', default='127.0.0.1')

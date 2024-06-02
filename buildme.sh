@@ -1,6 +1,7 @@
 #!/bin/bash
 
-set -eux
+# set -x # only for DEBUGing
+set -eu
 set -o pipefail
 
 NOCOLOR='\033[0m'
