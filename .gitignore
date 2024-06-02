@@ -156,3 +156,4 @@ cython_debug/
 .idea/
 
 /mysql_csv_import/_version.py
+/junit/
