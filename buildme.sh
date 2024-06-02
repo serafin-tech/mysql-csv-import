@@ -41,7 +41,7 @@ echo_green "==============="
 echo_green "=== LINTING ==="
 echo_green "==============="
 
-pylint mysql_csv_import/ tests/
+pylint mysql_csv_import/ tests/ mysql-csv-import-cli.py
 
 echo_green "==============="
 echo_green "=== TESTING ==="

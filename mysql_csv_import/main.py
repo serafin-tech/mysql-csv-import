@@ -101,7 +101,7 @@ def args_parser(args_list: list[str] | None):
                         help='password for database connection, read from .env from DB_PASS',
                         default=db_pass)
 
-    params = parser.parse_args(args_list)
+    params = parser.parse_args(args=args_list)
 
     return ArgParams(verbose=params.verbose,
                      file=params.file,
@@ -121,7 +121,7 @@ def logging_setup(verbose: bool):
 
 
 def main():
-    arg_params = args_parser()
+    arg_params = args_parser(None)
 
     logging_setup(arg_params.verbose)
 

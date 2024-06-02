@@ -1,3 +1,5 @@
+# pylint: disable=missing-function-docstring,missing-module-docstring
+
 import os
 import shlex
 
@@ -47,4 +49,4 @@ def test_read_csv_file(file_name, expected_data):
 def test_args_parser(payload, expected_data):
     params_dict = args_parser(shlex.split(payload))._asdict()
 
-    assert all([params_dict[field] == value for field, value in expected_data])
+    assert all(params_dict[field] == value for field, value in expected_data)
