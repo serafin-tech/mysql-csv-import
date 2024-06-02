@@ -17,7 +17,8 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pylint
+        python -m pip install -r requirements.txt
+        python -m pip install -r requirements-dev.txt
     - name: Analysing the code with pylint
       run: |
-        pylint mysql_csv_import/ tests/ mysql-csv-import-cli.py
+        pylint mysql_csv_import/ mysql-csv-import-cli.py

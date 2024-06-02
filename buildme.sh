@@ -21,7 +21,7 @@ then
   python3.11 -m venv venv
 fi
 
-rm -rf dist/ *.egg-info/ junit/
+rm -rf dist/ *.egg-info/ junit/ htmlcov/
 
 source venv/bin/activate
 
@@ -41,13 +41,13 @@ echo_green "==============="
 echo_green "=== LINTING ==="
 echo_green "==============="
 
-pylint mysql_csv_import/ tests/ mysql-csv-import-cli.py
+pylint mysql_csv_import/ mysql-csv-import-cli.py
 
 echo_green "==============="
 echo_green "=== TESTING ==="
 echo_green "==============="
 
-pytest tests/ \
+pytest mysql_csv_import/tests/ \
   --doctest-modules \
   --junitxml=junit/test-results.xml \
   --cov=mysql_csv_import \
