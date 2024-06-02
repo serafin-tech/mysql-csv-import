@@ -3,7 +3,7 @@
 CLI tool for importing data from CSV file into MySQL/MariaDB table
 
 ```shell
-usage: mysql-csv-import.py [-h] [-v] -f FILE -D DATABASE [-t TABLE] [-H HOST] [-P PORT] [-u USER] [-p PASSWORD]
+usage: mysql-csv-import [-h] [-v] -f FILE -D DATABASE [-t TABLE] [-H HOST] [-P PORT] [-u USER] [-p PASSWORD]
 
 Importing CSV data into MySQL database
 
