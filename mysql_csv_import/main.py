@@ -5,6 +5,7 @@ import argparse
 import csv
 import logging
 from collections import namedtuple
+from collections.abc import Iterator
 from pathlib import PurePath
 from pprint import pformat
 from typing import Dict, List
@@ -17,26 +18,30 @@ ArgParams = namedtuple('ArgParams',
                        {'verbose', 'file', 'database', 'table', 'host', 'port', 'user', 'password'})
 
 
-def write_date_to_db(arg_params: ArgParams, csv_data: List[Dict]):
+def write_date_to_db(arg_params: ArgParams, col_headers: List[str], csv_data_iter: Iterator[List[Dict]]):
     try:
         cnx = mysql.connector.connect(user=arg_params.user,
                                       password=arg_params.password,
                                       host=arg_params.host,
                                       database=arg_params.database)
 
-        add_query = (f"INSERT INTO {arg_params.table}({','.join(csv_data[0].keys())}) "
-                     f"VALUES({','.join(['%s'] * len(csv_data[0].keys()))})")
+        add_query = (f"INSERT INTO {arg_params.table}({','.join(col_headers)}) "
+                     f"VALUES({','.join(['%s'] * len(col_headers))})")
         logging.debug("query: %s", pformat(add_query))
 
         with cnx.cursor() as cursor:
             try:
-                cursor.executemany(add_query, [list(row.values()) for row in csv_data])
+                for csv_data in csv_data_iter:
+                    logging.debug("loading chunk size: %d", len(csv_data))
+                    cursor.executemany(add_query, [list(row.values()) for row in csv_data])
+
+                cnx.commit()
+
             except mysql.connector.Error as exception:
                 logging.info("error: %s", str(exception))
             else:
                 logging.info("data loaded successfully.")
 
-        cnx.commit()
         cnx.close()
 
     except mysql.connector.Error as err:
@@ -44,12 +49,36 @@ def write_date_to_db(arg_params: ArgParams, csv_data: List[Dict]):
         raise
 
 
-def read_csv_file(file: str) -> List[Dict]:
+def read_csv_file_iterator(file: str, batch_size: int = 512) -> Iterator[List[Dict]]:
     try:
         with open(file, encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
 
-            return list(reader)
+            ret_list = []
+            for row in reader:
+                ret_list.append(row)
+
+                if len(ret_list) >= batch_size:
+                    yield ret_list
+                    ret_list = []
+
+            yield ret_list
+
+    except FileNotFoundError as exception:
+        logging.error("File not found: %s, details: %s", file, str(exception))
+        raise
+
+    except csv.Error as exception:
+        logging.error("Reading error for file: %s, details: %s", file, str(exception))
+        raise
+
+
+def read_csv_file_headers(file: str) -> List[str]:
+    try:
+        with open(file, encoding='utf-8') as csvfile:
+            reader = csv.reader(csvfile)
+
+            return next(reader)
 
     except FileNotFoundError as exception:
         logging.error("File not found: %s, details: %s", file, str(exception))
@@ -91,7 +120,7 @@ def args_parser(args_list: list[str]):
     parser.add_argument('-P', '--port',
                         help='database port, default 3306, read from .env from DB_PORT',
                         default=db_port,
-                        type = int)
+                        type=int)
 
     parser.add_argument('-u', '--user',
                         help='username for database connection, read from .env from DB_USER',
@@ -127,10 +156,10 @@ def main():
 
     logging.debug("arguments: %s", pformat(arg_params))
 
-    csv_data = read_csv_file(file=arg_params.file)
-    logging.debug("csv_data: %s", pformat(csv_data))
+    csv_headers = read_csv_file_headers(file=arg_params.file)
+    logging.debug("csv headers: %s", pformat(csv_headers))
 
-    write_date_to_db(arg_params, csv_data)
+    write_date_to_db(arg_params, csv_headers, read_csv_file_iterator(file=arg_params.file))
 
 
 if __name__ == '__main__':

@@ -5,7 +5,7 @@ import shlex
 
 import pytest
 
-from mysql_csv_import.main import read_csv_file, args_parser
+from mysql_csv_import.main import read_csv_file_iterator, read_csv_file_headers, args_parser
 
 TESTS_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -22,7 +22,19 @@ TESTS_DIR = os.path.abspath(os.path.dirname(__file__))
         }]
 )])
 def test_read_csv_file(file_name, expected_data):
-    read_data = read_csv_file(file_name)
+    read_data = next(read_csv_file_iterator(file_name))
+    assert read_data == expected_data
+
+
+@pytest.mark.parametrize("file_name, expected_data", [(
+        f"{TESTS_DIR}/data/test.csv", [
+            'col_char',
+            'col_int',
+            'col_date'
+        ]
+)])
+def test_read_csv_headers(file_name, expected_data):
+    read_data = read_csv_file_headers(file_name)
     assert read_data == expected_data
 
 
